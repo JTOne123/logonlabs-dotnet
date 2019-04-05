@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.2;net451;netstandard2.0</TargetFrameworks>
+    <RootNamespace>LogonLabs.IdPx.API</RootNamespace>
+    <PackageId>LogonLabs.Client</PackageId>
+    <Authors>Logon Labs</Authors>
+    <Product>Logon Labs API Client</Product>
+    <Description>Package to help developers utilize the Logon Labs SSO identity service.</Description>
+    <PackageProjectUrl>https://logonlabs.com/docs/api/</PackageProjectUrl>
+    <PackageTags>Logon Labs SSO Identity SAML OAUTH Microsoft Google Facebook Okta LinkedIn</PackageTags>
+    <Copyright>2019</Copyright>
+    <AssemblyName>LogonLabs.Client</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ServiceStack" Version="5.4.0" />
+    <PackageReference Include="ServiceStack.HttpClient" Version="5.4.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities">
+      <Version>2.2.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities">
+      <Version>2.2.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>
