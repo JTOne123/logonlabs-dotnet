@@ -1,7 +1,5 @@
 The official LogonLabs .NET API library.
 
-## Prerequisites
-<.NET version support?>
 
 ## Documentation
 
