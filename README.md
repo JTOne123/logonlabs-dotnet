@@ -4,6 +4,24 @@ The official LogonLabs .NET API library.
 
 For the full Developer Documentation please visit: https://logonlabs.com/docs/api/
 
+### Install LogonLabs (NuGet)
+
+Via command line:
+
+	nuget install LogonLabs.Client
+
+Via Package Manager:
+
+	PM> Install-Package LogonLabs.Client
+
+Via Visual Studio:
+
+1. Open the Solution Explorer.
+2. Right-click on a project within your solution.
+3. Click on *Manage NuGet Packages...*
+4. Click on the *Browse* tab and search for "LogonLabs".
+5. Click on the LogonLabs.Client package, select the appropriate version in the right-tab and click *Install*.
+
 
 ## Usage
 
