@@ -1,8 +1,8 @@
 /* Options:
-Date: 2019-04-03 09:51:37
+Date: 2019-04-09 23:05:09
 Version: 5.40
 Tip: To override a DTO option, remove "//" prefix before updating
-BaseUrl: https://local-idpx.logon-dev.com
+BaseUrl: https://api.logon-dev.com
 
 //GlobalNamespace: 
 //MakePartial: True
@@ -205,78 +205,6 @@ namespace LogonLabs.IdPx.API.Model
         public virtual IErrorResponse error { get; set; }
         [DataMember(IsRequired = true)]
         public virtual string token { get; set; }
-    }
-
-    [Route("/track_local", "POST")]
-    [DataContract]
-    public partial class TrackLocal
-        : IReturn<TrackResponse>, IAppId
-    {
-        [DataMember]
-        public virtual string app_id { get; set; }
-
-        [DataMember]
-        public virtual string email_address { get; set; }
-
-        [DataMember]
-        public virtual string ip_address { get; set; }
-
-        [DataMember]
-        public virtual string client_data { get; set; }
-    }
-
-    public partial class TrackResponse
-        : IBaseResponse
-    {
-        public virtual IErrorResponse error { get; set; }
-    }
-
-    [Route("/validate_local", "POST")]
-    [DataContract]
-    public partial class ValidateLocalLogin
-        : IReturn<ValidateLocalLoginResponse>, IAppId
-    {
-        [DataMember]
-        public virtual string app_id { get; set; }
-
-        [DataMember]
-        public virtual string email_address { get; set; }
-
-        [DataMember]
-        public virtual string ip_address { get; set; }
-
-        [DataMember]
-        public virtual string user_agent { get; set; }
-
-        [DataMember]
-        public virtual string client_data { get; set; }
-    }
-
-    public partial class ValidateLocalLoginResponse
-        : IBaseResponse
-    {
-        [DataMember]
-        public virtual bool validation_success { get; set; }
-
-        [DataMember]
-        public virtual ValidateLocalLoginResponse.LocalValidationDetails validation_details { get; set; }
-
-        [DataMember]
-        public virtual LocationDetails location { get; set; }
-
-        public virtual IErrorResponse error { get; set; }
-
-        public partial class LocalValidationDetails
-        {
-            [DataMember]
-            public virtual bool ip_valid { get; set; }
-
-            [DataMember]
-            public virtual bool geo_valid { get; set; }
-
-            [DataMember]
-            public virtual bool time_valid { get; set; }
-        }
     }
 
     [Route("/validate", "POST")]

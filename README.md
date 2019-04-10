@@ -1,6 +1,5 @@
 The official LogonLabs .NET API library.
 
-
 ## Documentation
 
 For the full Developer Documentation please visit: https://logonlabs.com/docs/api/

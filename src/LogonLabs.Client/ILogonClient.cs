@@ -11,8 +11,6 @@ namespace LogonLabs.IdPx.API
         ValidateLoginResponse ValidateLogin(string token);
 
 
-        ValidateLocalLoginResponse ValidateLocalLogin(string email_address, string ip_address = null, string user_agent = null, string client_data = null);
-
 
         GetProvidersResponse GetProviders(string email_address = null);
         string Ping();

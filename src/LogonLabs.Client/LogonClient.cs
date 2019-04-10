@@ -3,9 +3,7 @@ using LogonLabs.IdPx.API.Model;
 using ServiceStack;
 using System;
 using System.IO;
-using System.Net;
 using System.Security.Cryptography;
-using System.Text;
 
 
 namespace LogonLabs.IdPx.API
@@ -24,7 +22,7 @@ namespace LogonLabs.IdPx.API
         {
             if (string.IsNullOrWhiteSpace(app_id))
             {
-                throw new Exception("app_id cannot be empty");
+                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "app_id cannot be empty", null);
             }
 
             _idpx_url = idpx_url;
@@ -34,7 +32,7 @@ namespace LogonLabs.IdPx.API
 
             if (!string.IsNullOrWhiteSpace(app_secret))
             {
-                _client.AddHeader("x-app-secret", app_secret);
+                _client.AddHeader(Constants.Headers.app_secret, app_secret);
             }
         }
 
@@ -42,27 +40,48 @@ namespace LogonLabs.IdPx.API
         {
             if (string.IsNullOrWhiteSpace(_app_secret))
             {
-                throw new Exception("app_secret cannot be empty");
+                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "app_secret cannot be empty", null);
             }
         }
         public string Ping()
         {
-            var resp = _client.Get(new Ping() { app_id = _app_id });
+            try
+            {
+                var resp = _client.Get(new Ping() { app_id = _app_id });
+                return resp?.version;
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
 
-            return resp?.version;
         }
 
         public GetProvidersResponse GetProviders(string email_address = null)
         {
-            var resp = _client.Get(new GetProviders() { app_id = _app_id, email_address = email_address });
+            try
+            {
+                var resp = _client.Get(new GetProviders() { app_id = _app_id, email_address = email_address });
 
-            return resp;
+                return resp;
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
         }
         public string StartLogin(string identity_provider, string email_address = null, string client_data = null, string client_encryption_key = null)
         {
-            var ssoStartResponse = _client.Post(new StartLogin() { app_id = _app_id, identity_provider = identity_provider, email_address = email_address, client_data = client_data, client_encryption_key = client_encryption_key });
+            try
+            {
+                var ssoStartResponse = _client.Post(new StartLogin() { app_id = _app_id, identity_provider = identity_provider, email_address = email_address, client_data = client_data, client_encryption_key = client_encryption_key });
 
-            return $"{_client.BaseUri}{new RedirectLogin() { token = ssoStartResponse.token }.ToGetUrl()}";
+                return $"{_client.BaseUri}{new RedirectLogin() { token = ssoStartResponse.token }.ToGetUrl()}";
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
         }
 
 
@@ -70,15 +89,16 @@ namespace LogonLabs.IdPx.API
         public ValidateLoginResponse ValidateLogin(string token)
         {
             ThrowIfNoSecret();
-            var resp = _client.Post(new ValidateLogin() { app_id = _app_id, token = token });
-            return resp;
-        }
 
-        public ValidateLocalLoginResponse ValidateLocalLogin(string email_address, string ip_address = null, string user_agent = null, string client_data = null)
-        {
-            ThrowIfNoSecret();
-            var resp = _client.Post(new ValidateLocalLogin() { app_id = _app_id, email_address = email_address, ip_address = ip_address, user_agent = user_agent, client_data = client_data });
-            return resp;
+            try
+            {
+                var resp = _client.Post(new ValidateLogin() { app_id = _app_id, token = token });
+                return resp;
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
         }
 
         public string Encrypt(string client_encryption_key, string value)
@@ -186,4 +206,6 @@ namespace LogonLabs.IdPx.API
 
         #endregion
     }
+
+
 }
