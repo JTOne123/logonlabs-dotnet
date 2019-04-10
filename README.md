@@ -30,8 +30,8 @@ Via Visual Studio:
 Use the snippet below to initiate the SSO login process for you user. This will start the Login process by starting a redirect session and redirect to the LogonLabs to broker the SSO request with the desired identity provider.
 
 ```csharp
-var logonClient = new LogonLabs.IdPx.API.LogonClient("YOUR_APP_ID");
-var redirectUrl = _logonClient.StartLogin(IdentityProviderEnum.google);
+var logonClient = new LogonLabs.IdPx.API.LogonClient("YOUR_APP_ID", "YOUR_APP_SECRET");
+var redirectUrl = _logonClient.StartLogin(IdentityProviderEnum.Google, "consumer@example.com");
 Response.Redirect(redirectUrl);
 ```
 
@@ -43,7 +43,7 @@ Use the snippet below to validate the login data from LogonLabs and continue you
 var logonClient = new Logon.IdPx.API.LogonClient("YOUR_APP_ID", "YOUR_APP_SECRET");
 
 //NOTE: depending on what flavor of .NET you are using (Asp.Net Core, .NET Framework), this could be slightly different
-var token = Request.Query["token"];
+var token = Request.Query[Constants.QueryString.token];
 
 var loginData = _logonClient.ValidateLogin(token);
 if (!loginData.validation_success)
