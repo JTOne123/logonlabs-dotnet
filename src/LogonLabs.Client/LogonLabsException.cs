@@ -3,20 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace LogonLabs.IdPx.API
+namespace LogonLabs
 {
     public class LogonLabsException : Exception
     {
-        public HttpStatusCode http_status_code { get; set; }
-        public string error_code { get; set; }
-        public string error_message { get; set; }
+        public HttpStatusCode httpStatusCode { get; set; }
+        public string errorCode { get; set; }
+        public string errorMessage { get; set; }
 
 
-        internal LogonLabsException(HttpStatusCode http_status_code, string error_code, string error_message, Exception inner_exception) : base(error_message, inner_exception)
+        internal LogonLabsException(HttpStatusCode httpStatusCode, string errorCode, string errorMessage,
+            Exception innerException) : base(errorMessage, innerException)
         {
-            this.http_status_code = http_status_code;
-            this.error_code = error_code;
-            this.error_message = error_message;
+            this.httpStatusCode = httpStatusCode;
+            this.errorCode = errorCode;
+            this.errorMessage = errorMessage;
 
 
         }
@@ -26,8 +27,8 @@ namespace LogonLabs.IdPx.API
             var genericBaseResponse = ServiceStack.Text.JsonSerializer.DeserializeFromString<System.Dynamic.ExpandoObject>(ex.ResponseBody);
 
 
-            string error_code = null;
-            string error_message = null;
+            string errorCode = null;
+            string errorMessage = null;
 
             var baseResponseDict = genericBaseResponse as IDictionary<string, object>;
             if (baseResponseDict.ContainsKey("error"))
@@ -36,17 +37,17 @@ namespace LogonLabs.IdPx.API
 
                 if (errorDict.ContainsKey("code"))
                 {
-                    error_code = (string)errorDict["code"];
+                    errorCode = (string)errorDict["code"];
                 }
 
                 if (errorDict.ContainsKey("message"))
                 {
-                    error_message = (string)errorDict["message"];
+                    errorMessage = (string)errorDict["message"];
                 }
             }
 
 
-            return new LogonLabsException((HttpStatusCode)ex.StatusCode, error_code, error_message, ex);
+            return new LogonLabsException((HttpStatusCode)ex.StatusCode, errorCode, errorMessage, ex);
         }
 
     }

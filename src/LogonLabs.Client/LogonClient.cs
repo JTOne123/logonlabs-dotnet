@@ -1,53 +1,58 @@
 ﻿
-using LogonLabs.IdPx.API.Model;
+using LogonLabs.Model;
 using ServiceStack;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 
 
-namespace LogonLabs.IdPx.API
+namespace LogonLabs
 {
     public class LogonClient : ILogonClient
     {
-        private string _idpx_url;
+        private string _baseUrl;
 
-        private string _app_id;
+        private string _appId;
 
-        private string _app_secret;
+        private string _appSecret;
 
         private ServiceStack.JsonHttpClient _client;
 
-        public LogonClient(string app_id, string app_secret = null, string idpx_url = "https://api.logonlabs.com")
+        public LogonClient(string appId, string baseUrl, string appSecret = null)
         {
-            if (string.IsNullOrWhiteSpace(app_id))
+            if (string.IsNullOrWhiteSpace(appId))
             {
-                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "app_id cannot be empty", null);
+                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "appId cannot be empty", null);
             }
 
-            _idpx_url = idpx_url;
-            _app_id = app_id;
-            _app_secret = app_secret;
-            _client = new ServiceStack.JsonHttpClient(_idpx_url);
-
-            if (!string.IsNullOrWhiteSpace(app_secret))
+            if (string.IsNullOrWhiteSpace(baseUrl))
             {
-                _client.AddHeader(Constants.Headers.app_secret, app_secret);
+                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "baseUrl cannot be empty", null);
+            }
+
+            _baseUrl = baseUrl;
+            _appId = appId;
+            _appSecret = appSecret;
+            _client = new ServiceStack.JsonHttpClient(_baseUrl);
+
+            if (!string.IsNullOrWhiteSpace(appSecret))
+            {
+                _client.AddHeader(Constants.Headers.app_secret, appSecret);
             }
         }
 
         private void ThrowIfNoSecret()
         {
-            if (string.IsNullOrWhiteSpace(_app_secret))
+            if (string.IsNullOrWhiteSpace(_appSecret))
             {
-                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "app_secret cannot be empty", null);
+                throw new LogonLabsException(System.Net.HttpStatusCode.Unused, Constants.ErrorCodes.api_error, "appSecret cannot be empty", null);
             }
         }
         public string Ping()
         {
             try
             {
-                var resp = _client.Get(new Ping() { app_id = _app_id });
+                var resp = _client.Get(new Ping() { app_id = _appId });
                 return resp?.version;
             }
             catch (WebServiceException ex)
@@ -57,11 +62,11 @@ namespace LogonLabs.IdPx.API
 
         }
 
-        public GetProvidersResponse GetProviders(string email_address = null)
+        public GetProvidersResponse GetProviders(string emailAddress = null)
         {
             try
             {
-                var resp = _client.Get(new GetProviders() { app_id = _app_id, email_address = email_address });
+                var resp = _client.Get(new GetProviders() { app_id = _appId, email_address = emailAddress });
 
                 return resp;
             }
@@ -70,11 +75,12 @@ namespace LogonLabs.IdPx.API
                 throw LogonLabsException.GetException(ex);
             }
         }
-        public string StartLogin(string identity_provider, string email_address = null, string client_data = null, string client_encryption_key = null)
+        public string StartLogin(string identityProvider, string emailAddress = null, string clientData = null,
+            string clientEncryptionKey = null, Tag[] tags = null)
         {
             try
             {
-                var ssoStartResponse = _client.Post(new StartLogin() { app_id = _app_id, identity_provider = identity_provider, email_address = email_address, client_data = client_data, client_encryption_key = client_encryption_key });
+                var ssoStartResponse = _client.Post(new StartLogin() { app_id = _appId, identity_provider = identityProvider, email_address = emailAddress, client_data = clientData, client_encryption_key = clientEncryptionKey, tags = tags });
 
                 return $"{_client.BaseUri}{new RedirectLogin() { token = ssoStartResponse.token }.ToGetUrl()}";
             }
@@ -92,7 +98,7 @@ namespace LogonLabs.IdPx.API
 
             try
             {
-                var resp = _client.Post(new ValidateLogin() { app_id = _app_id, token = token });
+                var resp = _client.Post(new ValidateLogin() { app_id = _appId, token = token });
                 return resp;
             }
             catch (WebServiceException ex)
@@ -101,13 +107,42 @@ namespace LogonLabs.IdPx.API
             }
         }
 
-        public string Encrypt(string client_encryption_key, string value)
+        public UpdateEventResponse UpdateEvent(string eventId, string localSuccess = null, Tag[] tags = null)
+        {
+            ThrowIfNoSecret();
+
+            try
+            {
+                var resp = _client.Put(new UpdateEvent() { app_id = _appId, event_id = eventId, local_success = localSuccess, tags = tags });
+                return resp;
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
+        }
+        public CreateEventResponse CreateEvent(string type, bool validate, string localValidation, string emailAddress, string ipAddress, string userAgent = null, string firstName = null, string lastName = null, Tag[] tags = null)
+        {
+            ThrowIfNoSecret();
+
+            try
+            {
+                var resp = _client.Post(new CreateEvent() { app_id = _appId, type = type, validate = validate, local_validation = localValidation, email_address = emailAddress, ip_address = ipAddress, user_agent = userAgent, first_name = firstName, last_name = lastName, tags = tags });
+                return resp;
+            }
+            catch (WebServiceException ex)
+            {
+                throw LogonLabsException.GetException(ex);
+            }
+        }
+
+        public string Encrypt(string clientEncryptionKey, string value)
         {
             byte[] encrypted;
             byte[] IV;
             byte[] Salt = GetSalt();
 
-            byte[] Key = CreateKey(client_encryption_key, Salt);
+            byte[] Key = CreateKey(clientEncryptionKey, Salt);
 
             using (Aes aesAlg = Aes.Create())
             {
@@ -141,7 +176,7 @@ namespace LogonLabs.IdPx.API
             return Convert.ToBase64String(combinedIvSaltCt.ToArray());
         }
 
-        public string Decrypt(string client_encryption_key, string value)
+        public string Decrypt(string clientEncryptionKey, string value)
         {
             byte[] inputAsByteArray;
             string plaintext = null;
@@ -156,7 +191,7 @@ namespace LogonLabs.IdPx.API
             Array.Copy(inputAsByteArray, Salt.Length, IV, 0, IV.Length);
             Array.Copy(inputAsByteArray, Salt.Length + IV.Length, Encoded, 0, Encoded.Length);
 
-            byte[] Key = CreateKey(client_encryption_key, Salt);
+            byte[] Key = CreateKey(clientEncryptionKey, Salt);
 
             using (Aes aesAlg = Aes.Create())
             {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LogonLabs.IdPx.API
+namespace LogonLabs
 {
     public static class Constants
     {
@@ -24,6 +24,12 @@ namespace LogonLabs.IdPx.API
 
         }
 
+        public static class EventTypes
+        {
+            public const string LocalLogin = "LocalLogin";
+            public const string LocalLogout = "LocalLogout";
+        }
+
         public static class Headers
         {
             public const string app_secret = "x-app-secret";
@@ -32,6 +38,13 @@ namespace LogonLabs.IdPx.API
         public static class QueryString
         {
             public const string token = "token";
+        }
+
+        public static class EventValidationTypes
+        {
+            public const string Pass = "Pass";
+            public const string Fail = "Fail";
+            public const string NotApplicable = "NotApplicable";
         }
 
     }

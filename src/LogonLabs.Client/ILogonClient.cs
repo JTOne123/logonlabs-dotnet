@@ -1,21 +1,25 @@
-﻿using LogonLabs.IdPx.API.Model;
+﻿using LogonLabs.Model;
 
-namespace LogonLabs.IdPx.API
+namespace LogonLabs
 {
     public interface ILogonClient
     {
 
-        string StartLogin(string identity_provider, string email_address = null, string client_data = null, string client_encryption_key = null);
+        string StartLogin(string identityProvider, string emailAddress = null, string clientData = null,
+            string clientEncryptionKey = null, Tag[] tags = null);
 
 
         ValidateLoginResponse ValidateLogin(string token);
 
+        UpdateEventResponse UpdateEvent(string eventId, string localSuccess = null, Tag[] tags = null);
 
-
-        GetProvidersResponse GetProviders(string email_address = null);
+        CreateEventResponse CreateEvent(string type, bool validate, string localValidation, string emailAddress,
+            string ipAddress, string userAgent = null, string firstName = null, string lastName = null,
+            Tag[] tags = null);
+        GetProvidersResponse GetProviders(string emailAddress = null);
         string Ping();
 
-        string Encrypt(string client_encryption_key, string value);
-        string Decrypt(string client_encryption_key, string value);
+        string Encrypt(string clientEncryptionKey, string value);
+        string Decrypt(string clientEncryptionKey, string value);
     }
 }
