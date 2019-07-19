@@ -8,7 +8,7 @@
     <Product>Logon Labs API Client</Product>
     <Description>Package to help developers utilize the Logon Labs SSO identity service.</Description>
     <PackageProjectUrl>https://logonlabs.com/docs/api/</PackageProjectUrl>
-    <PackageTags>Logon Labs SSO Identity SAML OAUTH Microsoft Google Facebook Okta LinkedIn</PackageTags>
+    <PackageTags>Logon Labs SSO Identity SAML OAUTH Microsoft Google Facebook Okta LinkedIn Slack Quickbooks Github OneLogin</PackageTags>
     <Copyright>2019</Copyright>
     <AssemblyName>LogonLabs.Client</AssemblyName>
   </PropertyGroup>

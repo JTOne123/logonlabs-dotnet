@@ -1,9 +1,11 @@
-# LogonLabs .Net
 
+
+# LogonLabs .Net
+---
 The official LogonLabs .NET API library.
 
 ### Install LogonLabs (NuGet)
-
+---
 Via command line:
 
 	nuget install LogonLabs.Client
@@ -20,9 +22,10 @@ Via Visual Studio:
 4. Click on the *Browse* tab and search for "LogonLabs".
 5. Click on the LogonLabs.Client package, select the appropriate version in the right-tab and click *Install*.
 
-## LogonLabs API
+## Logon Labs API
+---
 
-- Prior to coding, some configuration is required at https://logonlabs.com/app/#/app-settings.
+- Prior to coding, some configuration is required at https://logonlabs.com/app/#app-settings.
 
 - For the full Developer Documentation please visit: https://logonlabs.com/docs/api/
 
@@ -43,7 +46,7 @@ LogonClient client = new LogonClient("{APP_ID}", baseUrl: "{LOGONLABS_API_ENDPOI
 ---
 ### SSO Login QuickStart
 
-The StartLogin function in the JS library begins the LogonLabs managed SSO process.  
+The StartLogin function in the JS library begins the Logon Labs managed SSO process.  
 
 >Further documentation on starting the login process via our JavaScript client can be found at our GitHub page [here](https://github.com/logonlabs/logonlabs-js)
 
@@ -67,9 +70,9 @@ if(response.event_success)
 ```
 ---
 ### C# Only Workflow
-The following workflow is required if you're using C# to handle both the front and back ends.  If this does not apply to you, please refer to the SSO Login QuickStart section.
+The following workflow is required if you're using C# to handle both the front and back ends.  If this does not apply to you please refer to the SSO Login QuickStart section.
 #### Step 1 - StartLogin
-This call begins the LogonLabs managed SSO process.  The `clientData` property is optional and is used to pass any data that is required after validating the request.  The `clientEncryptionKey` property is optionally passed if the application requires encrypting any data that is passed between the front and back ends of its infrastructure. The `tags`property is an ArrayList of type Tag which is a simple object representing a key/value pair.
+This call begins the Logon Labs managed SSO process.  The `clientData` property is optional and is used to pass any data that is required after validating the request.  The `clientEncryptionKey` property is optionally passed if the application requires encrypting any data that is passed between the front and back ends of it's infrastructure. The `tags`property is an ArrayList of type Tag which is a simple object representing a key/value pair.
 
 ```csharp
 using LogonLabs;
@@ -88,12 +91,12 @@ tags.Add(tag);
 
 var redirectUri = client.startLogin(IdentityProviders.Google, "emailAddress", clientData, clientEncryptionKey, tags);
 ```
-The `redirectUri` property returned should be redirected to by the application.  Upon submitting their credentials, users will be redirected to the `CallbackUrl` set within the application settings at https://logonlabs.com/app/#/app-settings.
+The `redirectUri` property returned should be redirected to by the application.  Upon the user completing entering their credentials they will be redirected to the `CallbackUrl` set within the application settings at https://logonlabs.com/app/#/app-settings.
 &nbsp;
 #### Step 2 - ValidateLogin
 This method is used to validate the results of the login attempt.  `queryToken` corresponds to the query parameter with the name `token` appended to the callback url specified for your app.
 
-The response contains all details of the login and the user has now completed the SSO workflow.  If there is any additional information to add, UpdateEvent can be called on the `eventId` returned.
+The response contains all details of the login and the user has now completed the SSO workflow.  If there is any additional information to add UpdateEvent can be called on the `eventId` returned.
 ```csharp
 using LogonLabs;
 
@@ -135,7 +138,7 @@ else
 ```
 ---
 ### Events
-The CreateEvent method can be used to create events that are outside of our SSO workflows.  UpdateEvent can be used to update any events made either by CreateEvent or by our SSO login.
+The CreateEvent method allows one to create events that are outside of our SSO workflows.  UpdateEvent can be used to update any events made either by CreateEvent or by our SSO login.
 ```csharp
 using LogonLabs;
 using LogonLabs.Model;
@@ -178,7 +181,8 @@ client.UpdateEvent(eventId, localValidation, tags);
 ### Helper Methods
 #### GetProviders
 This method is used to retrieve a list of all providers enabled for the application.
-If an email address is passed, it will return the list of providers available for that email domain.
+If an email address is passed it will further filter any providers available/disabled for the domain of the address.  
+If any Enterprise Identity Providers have been configured a separate set of matching providers will also be returned in enterprise_identity_providers.
 ```csharp
 using LogonLabs;
 
@@ -190,10 +194,15 @@ foreach(var provider in response.identity_providers) {
         //make google available in UI or handle other custom rules
     }
 }
+
+foreach(var enterpriseProvider in response.enterprise_identity_providers)
+{
+    // use the identity_provider_id to find the correct provider and apply any custom rules
+}
 ```
 
 #### Encrypt/Decrypt
-The LogonLabs SDK has built in methods for encrypting/decrypting strings using AES encryption.  Use a value for your encryption key that only your client/server will know. 
+The LogonLabs SDK has built in methods for encrypting/decrypting strings using the AES encryption standard.  Use a value for your encryption key that only your client/server will know and 
 ```csharp
 using LogonLabs;
 

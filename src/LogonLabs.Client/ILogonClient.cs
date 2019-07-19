@@ -1,11 +1,12 @@
-﻿using LogonLabs.Model;
+﻿using LogonLabs.IdPx.API.Model;
+
 
 namespace LogonLabs
 {
     public interface ILogonClient
     {
 
-        string StartLogin(string identityProvider, string emailAddress = null, string clientData = null,
+        string StartLogin(string identityProvider = null, string identityProviderId = null, string emailAddress = null, string clientData = null,
             string clientEncryptionKey = null, Tag[] tags = null);
 
 

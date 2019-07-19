@@ -1,8 +1,8 @@
 /* Options:
-Date: 2019-05-14 12:24:11
+Date: 2019-06-03 18:31:30
 Version: 5.40
 Tip: To override a DTO option, remove "//" prefix before updating
-BaseUrl: https://local-idpx.logon-dev.com
+BaseUrl: https://api.logon-dev.com
 
 //GlobalNamespace: 
 //MakePartial: True
@@ -30,13 +30,12 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using ServiceStack;
 using ServiceStack.DataAnnotations;
-using LogonLabs.Model;
+using LogonLabs.IdPx.API.Model;
 
 
-namespace LogonLabs.Model
+namespace LogonLabs.IdPx.API.Model
 {
-
-    [Route("/callback", "GET")]
+     [Route("/callback", "GET")]
     [Route("/callback", "POST")]
     [DataContract]
     public partial class Callback
@@ -56,6 +55,12 @@ namespace LogonLabs.Model
 
         [DataMember]
         public virtual string SAMLResponse { get; set; }
+
+        [DataMember]
+        public virtual string oauth_token { get; set; }
+
+        [DataMember]
+        public virtual string oauth_verifier { get; set; }
     }
 
     public partial class CallbackResponse
@@ -123,6 +128,18 @@ namespace LogonLabs.Model
         public virtual IErrorResponse error { get; set; }
     }
 
+    public partial class EnterpriseProvider
+    {
+        [DataMember]
+        public virtual string name { get; set; }
+
+        [DataMember]
+        public virtual string identity_provider_id { get; set; }
+
+        [DataMember]
+        public virtual string type { get; set; }
+    }
+
     [Route("/error")]
     [DataContract]
     public partial class ErrorPage
@@ -148,10 +165,14 @@ namespace LogonLabs.Model
         public GetProvidersResponse()
         {
             identity_providers = new Provider[]{};
+            enterprise_identity_providers = new EnterpriseProvider[]{};
         }
 
         [DataMember]
         public virtual Provider[] identity_providers { get; set; }
+
+        [DataMember]
+        public virtual EnterpriseProvider[] enterprise_identity_providers { get; set; }
 
         [DataMember]
         public virtual string suggested_identity_provider { get; set; }
@@ -261,6 +282,9 @@ namespace LogonLabs.Model
         public virtual string identity_provider { get; set; }
 
         [DataMember]
+        public virtual string identity_provider_id { get; set; }
+
+        [DataMember]
         public virtual string email_address { get; set; }
 
         [DataMember]
@@ -308,7 +332,7 @@ namespace LogonLabs.Model
         public virtual string event_id { get; set; }
 
         [DataMember]
-        public virtual string local_success { get; set; }
+        public virtual string local_validation { get; set; }
 
         [DataMember]
         public virtual Tag[] tags { get; set; }
