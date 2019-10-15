@@ -32,9 +32,9 @@ Via Visual Studio:
 ---
 ### Instantiating a new client
 
-- Your `APP_ID` can be found in [App Settings](https://app.logonlabs.com/app/#/app-settings)
-- `APP_SECRETS` are configured [here](https://app.logonlabs.com/app/#/app-secrets)
-- The `LOGONLABS_API_ENDPOINT` should be set to `https://api.logonlabs.com`
+- `APP_ID` can be found in [App Settings](https://app.logonlabs.com/app/#/app-settings)
+- `APP_SECRET` is configured at [App Secrets](https://app.logonlabs.com/app/#/app-secrets)
+- `LOGONLABS_API_ENDPOINT` should be set to `https://api.logonlabs.com`
 
 Create a new instance of `LogonClient`.  
 
@@ -60,8 +60,6 @@ var token = Request.Query[Constants.QueryString.token];
 
 ValidateLoginResponse response = client.validateLogin(token);
 
-var eventId = response.event_id;; //used to update the SSO event later via UpdateEvent
-
 if(response.event_success) 
 {
     //authentication and validation succeeded. proceed with post-auth workflows (ie, create a user session token for your system).
@@ -72,7 +70,7 @@ if(response.event_success)
 ### C# Only Workflow
 The following workflow is required if you're using C# to handle both the front and back ends.  If this does not apply to you please refer to the SSO Login QuickStart section.
 #### Step 1 - StartLogin
-This call begins the Logon Labs managed SSO process.  The `clientData` property is optional and is used to pass any data that is required after validating the request.  The `clientEncryptionKey` property is optionally passed if the application requires encrypting any data that is passed between the front and back ends of it's infrastructure. The `tags`property is an ArrayList of type Tag which is a simple object representing a key/value pair.
+This call begins the Logon Labs managed SSO process.  The `clientData` property is optional and is used to pass any data that is required after validating the request.  The `tags`property is an ArrayList of type Tag which is a simple object representing a key/value pair.
 
 ```csharp
 using LogonLabs;
@@ -81,7 +79,6 @@ using System.Collections.Generic;
 
 //optional parameters
 var clientData = "{\"ClientData\":\"Value\"}";
-var clientEncryptionKey = "qbTRzCvUju";
 var tags = new List<Tag>();
 var tag = new Tag();
 tag.setKey("example-key");
@@ -89,10 +86,10 @@ tag.setValue("example-value");
 tags.Add(tag);
 //
 
-var redirectUri = client.startLogin(IdentityProviders.Google, "emailAddress", clientData, clientEncryptionKey, tags);
+var redirectUri = client.startLogin(IdentityProviders.Google, "example@emailaddress.com", clientData, clientEncryptionKey, tags);
 ```
 The `redirectUri` property returned should be redirected to by the application.  Upon the user completing entering their credentials they will be redirected to the `CallbackUrl` set within the application settings at https://app.logonlabs.com/app/#/app-settings.
-&nbsp;
+
 #### Step 2 - ValidateLogin
 This method is used to validate the results of the login attempt.  `queryToken` corresponds to the query parameter with the name `token` appended to the callback url specified for your app.
 
@@ -105,8 +102,6 @@ var token = Request.Query[Constants.QueryString.token];
 
 ValidateLoginResponse response = client.ValidateLogin(token);
 
-var eventId = response.event_id; //used to update the SSO event later via UpdateEvent
-
 if(response.event_success) 
 {
     //authentication and validation succeeded. proceed with post-auth workflows (ie, create a user session token for your system).
@@ -116,14 +111,9 @@ else
     //some validations failed.  details contained in SsoValidationDetails object.
     ValidationDetails validationDetails = response.validation_details;
 	
-    if(string.Equals(validationDetails.auth_validation, Constants.EventValidationTypes.Fail) 
+    if(string.Equals(validationDetails.domain_validation, Constants.EventValidationTypes.Fail) 
     {
-        //authentication with identity provider failed
-    }
-	
-    if(string.Equals(validationDetails.email_match_validation, Constants.EventValidationTypes.Fail) 
-    {
-        //email didn't match the one provided to StartLogin
+        //provider used was not enabled for the domain of the user that was authenticated
     }
 	
     if(string.Equals(validationDetails.geo_validation, Constants.EventValidationTypes.Fail) 
@@ -137,8 +127,9 @@ else
 
 ```
 ---
-### Events
-The CreateEvent method allows one to create events that are outside of our SSO workflows.  UpdateEvent can be used to update any events made either by CreateEvent or by our SSO login.
+### CreateEvent
+The CreateEvent method allows one to create events that are outside of our SSO workflows.
+
 ```csharp
 using LogonLabs;
 using LogonLabs.Model;
@@ -153,28 +144,16 @@ tags.Add(tag);
 var localValidation = Constants.EventValidationTypes.Pass;
 
 CreateEventResponse response = client.CreateEvent(
-	Constants.EventTypes.LocalLogin, 
-	validateEvent, 
-    localValidation, 
-	"ipAddress", 
-	"emailAddress", 
-	"firstName",
-	"lastName",
-	"userAgent",
-	tags);
+    Constants.EventTypes.LocalLogin,
+    validateEvent,
+    localValidation,
+    "{IP_ADDRESS}",
+    "{EMAIL_ADDRESS}",
+    "{FIRST_NAME}",
+    "{LAST_NAME}",
+    "{USER_AGENT}",
+    tags);
 
-var eventId = response.event_id;
-
-//some later local validation fails which requires further updates to the event...
-
-localValidation = Constants.EventValidationTypes.Fail;
-tags = new List<Tag>();
-tag = new Tag();
-tag.key = "failure-field";
-tag.value = "detailed reason for failure";
-tags.Add(tag);
-
-client.UpdateEvent(eventId, localValidation, tags);
 ```
 
 ---
@@ -186,30 +165,15 @@ If any Enterprise Identity Providers have been configured a separate set of matc
 ```csharp
 using LogonLabs;
 
-GetProvidersResponse response = client.GetProviders("emailAddress");
-var suggestedProvider = response.suggested_identity_provider //use suggested provider in UI
-foreach(var provider in response.identity_providers) {
-
-    if(string.Equals(provider.type, Constants.IdentityProviders.Google)) {
-        //make google available in UI or handle other custom rules
-    }
+GetProvidersResponse response = client.GetProviders("example@emailaddress.com");
+var suggestedProvider = response.suggested_identity_provider; //use suggested provider in UI
+foreach(var provider in response.social_identity_providers) 
+{
+    //each individual provider available for this app / email address
 }
 
 foreach(var enterpriseProvider in response.enterprise_identity_providers)
 {
-    // use the identity_provider_id to find the correct provider and apply any custom rules
+    //each enterprise provider available for this app / email address
 }
-```
-
-#### Encrypt/Decrypt
-The LogonLabs SDK has built in methods for encrypting/decrypting strings using the AES encryption standard.  Use a value for your encryption key that only your client/server will know and 
-```csharp
-using LogonLabs;
-
-var baseString = "string to be encrypted";
-var encryptionKey = "qbTRzCvUju";
-
-var encryptedString = client.Encrypt(encryptionKey, baseString);
-
-var decryptedString = client.Decrypt(encryptionKey, encryptedString);
 ```

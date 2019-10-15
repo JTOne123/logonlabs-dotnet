@@ -6,8 +6,7 @@ namespace LogonLabs
     public interface ILogonClient
     {
 
-        string StartLogin(string identityProvider = null, string identityProviderId = null, string emailAddress = null, string clientData = null,
-            string clientEncryptionKey = null, Tag[] tags = null);
+        string StartLogin(string identityProvider = null, string identityProviderId = null, string emailAddress = null, string clientData = null, string callbackUrl = null, string destinationUrl = null, Tag[] tags = null);
 
 
         ValidateLoginResponse ValidateLogin(string token);
@@ -20,7 +19,5 @@ namespace LogonLabs
         GetProvidersResponse GetProviders(string emailAddress = null);
         string Ping();
 
-        string Encrypt(string clientEncryptionKey, string value);
-        string Decrypt(string clientEncryptionKey, string value);
     }
 }

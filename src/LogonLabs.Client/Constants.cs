@@ -22,11 +22,20 @@ namespace LogonLabs
             public const string Microsoft = "microsoft";
             public const string Facebook = "facebook";
             public const string LinkedIn = "linkedin";
+            public const string Slack = "slack"; 
+            public const string Twitter = "twitter";
+            public const string Github = "github";
             public const string Okta = "okta";
-			public const string Slack = "slack";
 			public const string Quickbooks = "quickbooks";
-			public const string Github = "github";
             public const string OneLogin = "onelogin";
+
+            public const string Apple = "apple";
+            public const string Basecamp = "basecamp";
+            public const string Dropbox = "dropbox";
+            public const string Fitbit = "fitbit";
+            public const string PlanningCenter = "planningcenter";
+            public const string Twitch = "twitch";
+            public const string Amazon = "amazon";
         }
 
         public static class EventTypes

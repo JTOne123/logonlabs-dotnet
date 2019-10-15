@@ -1,8 +1,8 @@
 /* Options:
-Date: 2019-06-03 18:31:30
-Version: 5.40
+Date: 2019-10-10 21:32:46
+Version: 5.60
 Tip: To override a DTO option, remove "//" prefix before updating
-BaseUrl: https://api.logon-dev.com
+BaseUrl: https://api.logonlabs.com
 
 //GlobalNamespace: 
 //MakePartial: True
@@ -35,19 +35,20 @@ using LogonLabs.IdPx.API.Model;
 
 namespace LogonLabs.IdPx.API.Model
 {
-     [Route("/callback", "GET")]
+
+    [Route("/callback", "GET")]
     [Route("/callback", "POST")]
     [DataContract]
     public partial class Callback
-        : IReturn<CallbackResponse>
+        : IReturn<string>
     {
-        [DataMember(IsRequired=true)]
+        [DataMember]
         public virtual string code { get; set; }
 
-        [DataMember(IsRequired=true)]
+        [DataMember]
         public virtual string state { get; set; }
 
-        [DataMember(IsRequired=true)]
+        [DataMember]
         public virtual string session_state { get; set; }
 
         [DataMember]
@@ -63,20 +64,39 @@ namespace LogonLabs.IdPx.API.Model
         public virtual string oauth_verifier { get; set; }
     }
 
-    public partial class CallbackResponse
+    [Route("/entities", "DELETE")]
+    [DataContract]
+    public partial class ClearEntities
+        : IReturn<ClearEntitiesResponse>
+    {
+        public ClearEntities()
+        {
+            app_ids = new List<Guid> { };
+        }
+
+        [DataMember]
+        public virtual List<Guid> app_ids { get; set; }
+
+        [DataMember]
+        public virtual bool? clear_social { get; set; }
+    }
+
+    [DataContract]
+    public partial class ClearEntitiesResponse
         : IBaseResponse
     {
+        [DataMember]
         public virtual IErrorResponse error { get; set; }
     }
 
-    [Route("/event", "POST")]
+    [Route("/events", "POST")]
     [DataContract]
     public partial class CreateEvent
         : IReturn<CreateEventResponse>, IAppId
     {
         public CreateEvent()
         {
-            tags = new Tag[]{};
+            tags = new Tag[] { };
         }
 
         [DataMember]
@@ -138,6 +158,18 @@ namespace LogonLabs.IdPx.API.Model
 
         [DataMember]
         public virtual string type { get; set; }
+
+        [DataMember]
+        public virtual string login_button_image_uri { get; set; }
+
+        [DataMember]
+        public virtual string login_background_hex_color { get; set; }
+
+        [DataMember]
+        public virtual string login_icon_image_uri { get; set; }
+
+        [DataMember]
+        public virtual string login_text_hex_color { get; set; }
     }
 
     [Route("/error")]
@@ -147,12 +179,136 @@ namespace LogonLabs.IdPx.API.Model
     {
     }
 
+    public partial class Event
+    {
+        public Event()
+        {
+            tags = new Tag[] { };
+        }
+
+        [DataMember]
+        public virtual DateTime created_date { get; set; }
+
+        [DataMember]
+        public virtual string event_type { get; set; }
+
+        [DataMember]
+        public virtual string completion_state { get; set; }
+
+        [DataMember]
+        public virtual string email_address { get; set; }
+
+        [DataMember]
+        public virtual string provider_type { get; set; }
+
+        [DataMember]
+        public virtual string ip_address { get; set; }
+
+        [DataMember]
+        public virtual bool? event_success { get; set; }
+
+        [DataMember]
+        public virtual string local_success { get; set; }
+
+        [DataMember]
+        public virtual DateTime? local_success_date { get; set; }
+
+        [DataMember]
+        public virtual ValidationDetails validation_details { get; set; }
+
+        [DataMember]
+        public virtual string country_code { get; set; }
+
+        [DataMember]
+        public virtual string latitude { get; set; }
+
+        [DataMember]
+        public virtual string longitude { get; set; }
+
+        [DataMember]
+        public virtual Tag[] tags { get; set; }
+
+        [DataMember]
+        public virtual string operating_system { get; set; }
+
+        [DataMember]
+        public virtual string browser { get; set; }
+
+        [DataMember]
+        public virtual string device { get; set; }
+
+        [DataMember]
+        public virtual bool? is_bot { get; set; }
+    }
+
+    [Route("/events", "GET")]
+    [DataContract]
+    public partial class GetEvents
+        : IReturn<GetEventsResponse>, IAppId
+    {
+        public GetEvents()
+        {
+            completion_states = new List<string> { };
+        }
+
+        [DataMember(IsRequired = true)]
+        [ApiMember(IsRequired = true, ParameterType = "path")]
+        public virtual string app_id { get; set; }
+
+        ///<summary>
+        ///Defaults to 1
+        ///</summary>
+        [DataMember]
+        [ApiMember(Description = "Defaults to 1", ParameterType = "query")]
+        public virtual int? page { get; set; }
+
+        ///<summary>
+        ///Defaults to 25
+        ///</summary>
+        [DataMember]
+        [ApiMember(Description = "Defaults to 25", ParameterType = "query")]
+        public virtual int? page_size { get; set; }
+
+        [DataMember]
+        [ApiMember(ParameterType = "query")]
+        public virtual string start_date { get; set; }
+
+        [DataMember]
+        [ApiMember(ParameterType = "query")]
+        public virtual string end_date { get; set; }
+
+        [DataMember]
+        [ApiMember(ParameterType = "query")]
+        public virtual List<string> completion_states { get; set; }
+    }
+
+    public partial class GetEventsResponse
+        : IBaseResponse
+    {
+        public GetEventsResponse()
+        {
+            events = new Event[] { };
+        }
+
+        [DataMember]
+        public virtual IErrorResponse error { get; set; }
+
+        [DataMember]
+        public virtual int total_items { get; set; }
+
+        [DataMember]
+        public virtual int total_pages { get; set; }
+
+        [DataMember]
+        public virtual Event[] events { get; set; }
+    }
+
     [Route("/providers", "GET")]
     [DataContract]
     public partial class GetProviders
         : IReturn<GetProvidersResponse>, IAppId
     {
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string app_id { get; set; }
 
         [DataMember]
@@ -164,12 +320,12 @@ namespace LogonLabs.IdPx.API.Model
     {
         public GetProvidersResponse()
         {
-            identity_providers = new Provider[]{};
-            enterprise_identity_providers = new EnterpriseProvider[]{};
+            social_identity_providers = new Provider[] { };
+            enterprise_identity_providers = new EnterpriseProvider[] { };
         }
 
         [DataMember]
-        public virtual Provider[] identity_providers { get; set; }
+        public virtual Provider[] social_identity_providers { get; set; }
 
         [DataMember]
         public virtual EnterpriseProvider[] enterprise_identity_providers { get; set; }
@@ -226,6 +382,24 @@ namespace LogonLabs.IdPx.API.Model
         public virtual string country_name { get; set; }
     }
 
+    [Route("/session", "DELETE")]
+    [DataContract]
+    public partial class LogoutDelegatedIdPxSession
+        : IReturn<LogoutDelegatedIdPxSessionResponse>, IAppId
+    {
+        [DataMember]
+        [ApiMember(ParameterType = "query")]
+        public virtual string app_id { get; set; }
+    }
+
+    [DataContract]
+    public partial class LogoutDelegatedIdPxSessionResponse
+        : IBaseResponse
+    {
+        [DataMember]
+        public virtual IErrorResponse error { get; set; }
+    }
+
     [Route("/ping", "GET")]
     [DataContract]
     public partial class Ping
@@ -255,13 +429,33 @@ namespace LogonLabs.IdPx.API.Model
     public partial class RedirectLogin
         : IReturn<RedirectLoginResponse>
     {
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string token { get; set; }
     }
 
     public partial class RedirectLoginResponse
         : IBaseResponse
     {
+        public virtual IErrorResponse error { get; set; }
+    }
+
+    [Route("/session", "POST")]
+    [DataContract]
+    public partial class SetDelegatedIdPxSession
+        : IReturn<SetDelegatedIdPxSessionResponse>, IAppId
+    {
+        [DataMember]
+        public virtual string app_id { get; set; }
+
+        [DataMember]
+        public virtual string session_token { get; set; }
+    }
+
+    [DataContract]
+    public partial class SetDelegatedIdPxSessionResponse
+        : IBaseResponse
+    {
+        [DataMember]
         public virtual IErrorResponse error { get; set; }
     }
 
@@ -272,13 +466,13 @@ namespace LogonLabs.IdPx.API.Model
     {
         public StartLogin()
         {
-            tags = new Tag[]{};
+            tags = new Tag[] { };
         }
 
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string app_id { get; set; }
 
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string identity_provider { get; set; }
 
         [DataMember]
@@ -291,17 +485,20 @@ namespace LogonLabs.IdPx.API.Model
         public virtual string client_data { get; set; }
 
         [DataMember]
-        public virtual string client_encryption_key { get; set; }
+        public virtual Tag[] tags { get; set; }
 
         [DataMember]
-        public virtual Tag[] tags { get; set; }
+        public virtual string destination_url { get; set; }
+
+        [DataMember]
+        public virtual string callback_url { get; set; }
     }
 
     public partial class StartLoginResponse
         : IBaseResponse
     {
         public virtual IErrorResponse error { get; set; }
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string token { get; set; }
     }
 
@@ -315,20 +512,20 @@ namespace LogonLabs.IdPx.API.Model
         public virtual string value { get; set; }
     }
 
-    [Route("/event/{event_id}", "PUT")]
+    [Route("/events/{event_id}", "PUT")]
     [DataContract]
     public partial class UpdateEvent
         : IReturn<UpdateEventResponse>, IAppId
     {
         public UpdateEvent()
         {
-            tags = new Tag[]{};
+            tags = new Tag[] { };
         }
 
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string app_id { get; set; }
 
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string event_id { get; set; }
 
         [DataMember]
@@ -349,10 +546,10 @@ namespace LogonLabs.IdPx.API.Model
     public partial class ValidateLogin
         : IReturn<ValidateLoginResponse>, IAppId
     {
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string app_id { get; set; }
 
-        [DataMember(IsRequired=true)]
+        [DataMember(IsRequired = true)]
         public virtual string token { get; set; }
     }
 
@@ -384,10 +581,10 @@ namespace LogonLabs.IdPx.API.Model
         public virtual string client_data { get; set; }
 
         [DataMember]
-        public virtual string client_encryption_key { get; set; }
+        public virtual string event_id { get; set; }
 
         [DataMember]
-        public virtual string event_id { get; set; }
+        public virtual string destination_url { get; set; }
 
         public virtual IErrorResponse error { get; set; }
     }
@@ -395,10 +592,7 @@ namespace LogonLabs.IdPx.API.Model
     public partial class ValidationDetails
     {
         [DataMember]
-        public virtual string auth_validation { get; set; }
-
-        [DataMember]
-        public virtual string email_match_validation { get; set; }
+        public virtual string domain_validation { get; set; }
 
         [DataMember]
         public virtual string ip_validation { get; set; }
