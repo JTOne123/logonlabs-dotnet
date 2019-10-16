@@ -86,7 +86,7 @@ tag.setValue("example-value");
 tags.Add(tag);
 //
 
-var redirectUri = client.startLogin(IdentityProviders.Google, "example@emailaddress.com", clientData, clientEncryptionKey, tags);
+var redirectUri = client.startLogin(IdentityProviders.Google, null, "example@emailaddress.com", clientData, null, null, tags);
 ```
 The `redirectUri` property returned should be redirected to by the application.  Upon the user completing entering their credentials they will be redirected to the `CallbackUrl` set within the application settings at https://app.logonlabs.com/app/#/app-settings.
 
