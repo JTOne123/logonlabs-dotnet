@@ -81,8 +81,8 @@ using System.Collections.Generic;
 var clientData = "{\"ClientData\":\"Value\"}";
 var tags = new List<Tag>();
 var tag = new Tag();
-tag.setKey("example-key");
-tag.setValue("example-value");
+tag.key = "example-key";
+tag.value = "example-value";
 tags.Add(tag);
 //
 
@@ -111,7 +111,7 @@ else
     //some validations failed.  details contained in SsoValidationDetails object.
     ValidationDetails validationDetails = response.validation_details;
 	
-    if(string.Equals(validationDetails.domain_validation, Constants.EventValidationTypes.Fail) 
+    if(string.Equals(validationDetails.domain_validation, Constants.EventValidationTypes.Fail)) 
     {
         //provider used was not enabled for the domain of the user that was authenticated
     }
